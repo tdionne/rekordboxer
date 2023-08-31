@@ -1,21 +1,21 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-function TrackTrack(props) {
-    const TrackRegion = styled.div`
+const TrackRegion = styled.div`
         position: relative;
         width: 100%;
         height: 3em;
         background-color: black;
-    `
-    const Q = styled.div`
-        position: absolute;
-        width: 1px;
-        height: 3em;
-        background-color: ${props => props.num > 0 ? 'green' : 'red' };
-        left: ${props => props.start}%;
-    `
+`
 
+const Q = styled.div`
+    position: absolute;
+    width: 1px;
+    height: 3em;
+    background-color: ${props => props.num > 0 ? 'green' : 'red' };
+    left: ${props => props.start}%;
+`
+function TrackTrack(props) {
     const lengthString = useCallback((length) => {
         const minutes = Math.floor(length / 60);
         const seconds = length - minutes * 60;

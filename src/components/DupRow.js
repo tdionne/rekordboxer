@@ -2,10 +2,11 @@ import { useMemo, useCallback } from "react";
 import TrackCell from './TrackCell';
 import styled from 'styled-components';
 
+const TrackButtons = styled.div`
+    justify-self: center;
+`
+
 function DupRow(props) {
-    const TrackButtons = styled.div`
-        justify-self: center;
-    `
     const bpt = useMemo(() => {
         return props.dup[0]
     }, [props.dup])

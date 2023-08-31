@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import Duplicates from './components/Duplicates';
@@ -9,6 +9,7 @@ function App() {
   const [beatportTracks, setBeatportTracks] = useState([]);
   const [dups, setDups] = useState([]);
 
+ const TrackClass = useMemo(() => {
   class Track {
     constructor(xmlTrack) {
       this.xmlTrack = xmlTrack;
@@ -77,19 +78,21 @@ function App() {
       Array.from(this.xmlTrack.getElementsByTagName("POSITION_MARK")).forEach(p => {
         p.parentNode.removeChild(p);
       });
-      q.forEach(p => {  
+      q.forEach(_ => {  
         const newEl = xmlDoc.createElement("POSITION_MARK");
-        newEl.setAttribute('Name', p.name);
-        newEl.setAttribute('Type', p.type);
-        newEl.setAttribute('Start', p.start);
-        newEl.setAttribute('Num', p.num);
+        newEl.setAttribute('Name', _.name);
+        newEl.setAttribute('Type', _.type);
+        newEl.setAttribute('Start', _.start);
+        newEl.setAttribute('Num', _.num);
         this.xmlTrack.appendChild(newEl);
       })
     }
   }
+  return Track;
+ }, [xmlDoc]);
 
   const copyRight = useCallback(async (bpt, dlt) => {
-    const _dlt = new Track(dlt.xmlTrack);
+    const _dlt = new TrackClass(dlt.xmlTrack);
     _dlt.comments = bpt.comments;
     _dlt.queues = bpt.queues;
     _dlt.grid = bpt.grid;
@@ -97,7 +100,7 @@ function App() {
     const _tracks = [...tracks];
     _tracks[idx] = _dlt;
     setTracks(_tracks);
-  }, [tracks])
+  }, [tracks, TrackClass])
 
   const loadFile = (file) => {
     const reader = new FileReader();
@@ -106,8 +109,8 @@ function App() {
       const xmlDoc = parser.parseFromString(evt.target.result, "text/xml");
       setXmlDoc(xmlDoc);
       const tracks = xmlDoc.getElementsByTagName("TRACK");
-      setTracks(Array.from(tracks).filter(t => t.getAttribute('Kind') !== 'Unknown Format').map(t => new Track(t)));
-      setBeatportTracks(Array.from(tracks).filter(t => t.getAttribute('Kind') === 'Unknown Format').map(t => new Track(t)));
+      setTracks(Array.from(tracks).filter(t => t.getAttribute('Kind') !== 'Unknown Format').map(t => new TrackClass(t)));
+      setBeatportTracks(Array.from(tracks).filter(t => t.getAttribute('Kind') === 'Unknown Format').map(t => new TrackClass(t)));
     };
     reader.readAsText(file);
   }
