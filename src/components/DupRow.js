@@ -15,9 +15,9 @@ function DupRow(props) {
     }, [props, bpt, dlt])
 
     return <>
-        <div>{bpt.name},{bpt.length},{bpt.comments},{bpt.queues.map(q => `${q.start}`).join(',')}</div>
+        <div>{bpt.trackName},{bpt.length},{bpt.comments},{bpt.queues.map(q => `${q.start}`).join(',')}</div>
         <div><button onClick={copyRight}>copy</button></div>
-        <div>{dlt.name},{dlt.length},{dlt.kind},{dlt.comments},{dlt.queues.map(q => `${q.start}`).join(',')}</div>
+        <div>{dlt.trackName},{dlt.length},{dlt.kind},{dlt.comments},{dlt.queues.map(q => `${q.start}`).join(',')}</div>
     </>
 }
 
