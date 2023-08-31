@@ -3,7 +3,7 @@ import logo from './rb.png';
 import './App.css';
 import Duplicates from './components/Duplicates';
 import styled from 'styled-components';
-import { toHaveDisplayValue } from '@testing-library/jest-dom/matchers';
+import { saveAs } from 'file-saver';
 
 const Toolbar = styled.div`
   display: flex;
@@ -27,6 +27,8 @@ function App() {
   const [dups, setDups] = useState([]);
   const [deltas, setDeltas] = useState([]);
   const [shownTracks, setShownTracks] = useState([]);
+  const [newFileName, setNewFileName] = useState();
+  const [saveMessage, setSaveMessage] = useState();
 
  const TrackClass = useMemo(() => {
   class Track {
@@ -153,8 +155,17 @@ function App() {
   }, [TrackClass]);
 
   const saveFile = useCallback(async () => {
-
-  }, []);
+    const serializer = new XMLSerializer();
+    const xmlStr = serializer.serializeToString(xmlDoc);
+    const blob = new Blob([xmlStr], {type: "text/xml"});
+    try {
+      saveAs(blob, newFileName);
+    } catch (err) {
+      setSaveMessage(err);
+      return
+    }
+    setSaveMessage('File saved');
+  }, [xmlDoc, newFileName]);
 
   useEffect(() => {
     if (beatportTracks && beatportTracks.length > 0) {
@@ -182,6 +193,12 @@ function App() {
     }
   }, [deltas, dups, shownTracks])
 
+  useEffect(() => {
+    if (saveMessage) {
+      setTimeout(() => setSaveMessage(undefined), 3000);
+    }
+  }, [saveMessage])
+
   return (
     <div className="App">
       <header className="App-header">
@@ -193,7 +210,9 @@ function App() {
           <Filter onClick={_e => setShownTracks(dups)}>Dups</Filter>
           <Filter onClick={_e => setShownTracks(deltas)}>Deltas</Filter>
         </Filters>
+        <input onChange={e => setNewFileName(e.target.value)} value={newFileName}></input>
         <button onClick={saveFile}>Save Changes</button>
+        <div>{saveMessage}</div>
       </Toolbar>
       <Duplicates dups={shownTracks} copyTrack={copyTrack}/>
     </div>
