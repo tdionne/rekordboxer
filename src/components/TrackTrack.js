@@ -15,6 +15,10 @@ const Q = styled.div`
     background-color: ${props => props.num > 0 ? 'green' : 'red' };
     left: ${props => props.start}%;
 `
+
+const Comments = styled.div`
+    height: 1em;
+`
 function TrackTrack(props) {
     const lengthString = useCallback((length) => {
         const minutes = Math.floor(length / 60);
@@ -27,7 +31,7 @@ function TrackTrack(props) {
         <TrackRegion>
             {props.track.queues.map(q => <Q start={q.start/props.track.length * 100} num={props.num}/>)}
         </TrackRegion>
-        <div>{props.track.comments}</div>
+        <Comments>{props.track.comments}</Comments>
     </>
 }
 

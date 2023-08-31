@@ -2,6 +2,12 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import logo from './rb.png';
 import './App.css';
 import Duplicates from './components/Duplicates';
+import styled from 'styled-components';
+
+const Toolbar = styled.div`
+  display: flex;
+  justify-content: center;
+`
 
 function App() {
   const [xmlDoc, setXmlDoc] = useState();
@@ -102,7 +108,7 @@ function App() {
     setTracks(_tracks);
   }, [tracks, TrackClass])
 
-  const loadFile = (file) => {
+  const loadFile = useCallback(file => {
     const reader = new FileReader();
     const parser = new DOMParser();
     reader.onload = (evt) => {
@@ -113,7 +119,11 @@ function App() {
       setBeatportTracks(Array.from(tracks).filter(t => t.getAttribute('Kind') === 'Unknown Format').map(t => new TrackClass(t)));
     };
     reader.readAsText(file);
-  }
+  }, [TrackClass]);
+
+  const saveFile = useCallback(async () => {
+
+  }, []);
 
   useEffect(() => {
     if (beatportTracks && beatportTracks.length > 0) {
@@ -133,8 +143,11 @@ function App() {
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" /> <h1>BOXER</h1>
-        <input type="file" id="file-selector" onChange={e => loadFile(e.target.files[0])}></input>
       </header>
+      <Toolbar>
+        <input type="file" id="file-selector" onChange={e => loadFile(e.target.files[0])}></input>
+        <button onClick={saveFile}>Save Changes</button>
+      </Toolbar>
       <Duplicates dups={dups} copyTrack={copyTrack}/>
     </div>
   );
