@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import logo from './logo.svg';
+import logo from './rb.png';
 import './App.css';
 import Duplicates from './components/Duplicates';
 
@@ -132,7 +132,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <img src={logo} className="App-logo" alt="logo" /> <h1>BOXER</h1>
         <input type="file" id="file-selector" onChange={e => loadFile(e.target.files[0])}></input>
       </header>
       <Duplicates dups={dups} copyTrack={copyTrack}/>
