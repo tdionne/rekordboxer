@@ -4,9 +4,11 @@ import DupRow from './DupRow';
 function Duplicates(props) {
     const DupTable = styled.div`
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: 1fr 0.25fr 1fr;
         gap: 10px;
         grid-auto-rows: minmax(100px, auto);
+        align-items: center;
+        justify-content: center;
     `
 
     return <DupTable>

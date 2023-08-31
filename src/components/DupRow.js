@@ -1,7 +1,11 @@
 import { useMemo, useCallback } from "react";
+import TrackCell from './TrackCell';
+import styled from 'styled-components';
 
 function DupRow(props) {
-    
+    const TrackButtons = styled.div`
+        justify-self: center;
+    `
     const bpt = useMemo(() => {
         return props.dup[0]
     }, [props.dup])
@@ -15,9 +19,9 @@ function DupRow(props) {
     }, [props, bpt, dlt])
 
     return <>
-        <div>{bpt.trackName},{bpt.length},{bpt.comments},{bpt.queues.map(q => `${q.start}`).join(',')}</div>
-        <div><button onClick={copyRight}>copy</button></div>
-        <div>{dlt.trackName},{dlt.length},{dlt.kind},{dlt.comments},{dlt.queues.map(q => `${q.start}`).join(',')}</div>
+        <TrackCell track={bpt}/>
+        <TrackButtons><button onClick={copyRight}>copy</button></TrackButtons>
+        <TrackCell track={dlt}/>
     </>
 }
 
