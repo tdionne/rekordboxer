@@ -3,10 +3,21 @@ import logo from './rb.png';
 import './App.css';
 import Duplicates from './components/Duplicates';
 import styled from 'styled-components';
+import { toHaveDisplayValue } from '@testing-library/jest-dom/matchers';
 
 const Toolbar = styled.div`
   display: flex;
   justify-content: center;
+`
+
+const Filters = styled.div`
+  display: flex;
+  justify-content: space-around;
+`
+
+const Filter = styled.div`
+  padding: 0 0.25em;
+  cursor: pointer;
 `
 
 function App() {
@@ -14,18 +25,17 @@ function App() {
   const [tracks, setTracks] = useState([]);
   const [beatportTracks, setBeatportTracks] = useState([]);
   const [dups, setDups] = useState([]);
+  const [deltas, setDeltas] = useState([]);
+  const [shownTracks, setShownTracks] = useState([]);
 
  const TrackClass = useMemo(() => {
   class Track {
     constructor(xmlTrack) {
       this.xmlTrack = xmlTrack;
+      this._edited = false;
     }
     get trackName() {
       return this.xmlTrack.getAttribute('Name');
-    }
-
-    set trackName(t) {
-      this.xmlTrack.setAttribute('Name', t);
     }
 
     get kind() {
@@ -36,11 +46,21 @@ function App() {
       return this.xmlTrack.getAttribute('TotalTime');
     }
 
+    get color() {
+      return this.xmlTrack.getAttribute('Colour');
+    }
+
+    set color(color) {
+      this._edited = true;
+      this.xmlTrack.setAttribute('Colour', color);
+    }
+
     get comments() {
       return this.xmlTrack.getAttribute('Comments');
     }
 
     set comments(c) {
+      this._edited = true;
       this.xmlTrack.setAttribute('Comments', c);
     }
 
@@ -56,6 +76,7 @@ function App() {
     }
 
     set grid(g) {
+      this._edited = true;
       Array.from(this.xmlTrack.getElementsByTagName("TEMPO")).forEach(te => {
         te.parentNode.removeChild(te);
       });
@@ -81,6 +102,7 @@ function App() {
     }
 
     set queues(q) {
+      this._edited = true;
       Array.from(this.xmlTrack.getElementsByTagName("POSITION_MARK")).forEach(p => {
         p.parentNode.removeChild(p);
       });
@@ -93,6 +115,14 @@ function App() {
         this.xmlTrack.appendChild(newEl);
       })
     }
+
+    get edited() {
+      return this._edited;
+    }
+
+    set edited(edited) {
+      this._edited = edited;
+    }
   }
   return Track;
  }, [xmlDoc]);
@@ -102,6 +132,7 @@ function App() {
     newTrack.comments = from.comments;
     newTrack.queues = from.queues;
     newTrack.grid = from.grid;
+    newTrack.color = from.color;
     const idx = tracks.indexOf(tracks.find(t => t.trackName === to.trackName));
     const _tracks = [...tracks];
     _tracks[idx] = newTrack;
@@ -134,10 +165,22 @@ function App() {
               && t.length === bpt.length;
           });
           return d.length > 0 ? [bpt, d[0]] : undefined;
-      })
-      setDups(dups.filter(d => typeof d !== 'undefined'))
+      }).filter(d => typeof d !== 'undefined');
+      setDups(dups)
+      const deltas = dups.filter(d => {
+        return d[1].edited || d[0].edited || d[0].queues.length > d[1].queues.length || d[0].comments !== d[1].comments;
+      });
+      setDeltas(deltas);
     }
-  }, [beatportTracks, tracks, xmlDoc])
+  }, [beatportTracks, tracks])
+
+  useEffect(() => {
+    if (deltas && dups) {
+      if (!shownTracks || shownTracks.length === 0) {
+        setShownTracks(dups);
+      }
+    }
+  }, [deltas, dups, shownTracks])
 
   return (
     <div className="App">
@@ -146,9 +189,13 @@ function App() {
       </header>
       <Toolbar>
         <input type="file" id="file-selector" onChange={e => loadFile(e.target.files[0])}></input>
+        <Filters>
+          <Filter onClick={_e => setShownTracks(dups)}>Dups</Filter>
+          <Filter onClick={_e => setShownTracks(deltas)}>Deltas</Filter>
+        </Filters>
         <button onClick={saveFile}>Save Changes</button>
       </Toolbar>
-      <Duplicates dups={dups} copyTrack={copyTrack}/>
+      <Duplicates dups={shownTracks} copyTrack={copyTrack}/>
     </div>
   );
 }
