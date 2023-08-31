@@ -15,7 +15,7 @@ function Duplicates(props) {
         <div>Beat</div>
         <div>Action</div>
         <div>Down</div>
-        {props.dups.map(d => <DupRow copyRight={props.copyRight} dup={d}></DupRow>)}
+        {props.dups.map(d => <DupRow copyTrack={props.copyTrack} dup={d}></DupRow>)}
     </DupTable>
 }
 

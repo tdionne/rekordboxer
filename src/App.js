@@ -91,14 +91,14 @@ function App() {
   return Track;
  }, [xmlDoc]);
 
-  const copyRight = useCallback(async (bpt, dlt) => {
-    const _dlt = new TrackClass(dlt.xmlTrack);
-    _dlt.comments = bpt.comments;
-    _dlt.queues = bpt.queues;
-    _dlt.grid = bpt.grid;
-    const idx = tracks.indexOf(tracks.find(t => t.trackName === dlt.trackName));
+  const copyTrack = useCallback(async (from, to) => {
+    const newTrack = new TrackClass(to.xmlTrack);
+    newTrack.comments = from.comments;
+    newTrack.queues = from.queues;
+    newTrack.grid = from.grid;
+    const idx = tracks.indexOf(tracks.find(t => t.trackName === to.trackName));
     const _tracks = [...tracks];
-    _tracks[idx] = _dlt;
+    _tracks[idx] = newTrack;
     setTracks(_tracks);
   }, [tracks, TrackClass])
 
@@ -135,7 +135,7 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
         <input type="file" id="file-selector" onChange={e => loadFile(e.target.files[0])}></input>
       </header>
-      <Duplicates dups={dups} copyRight={copyRight}/>
+      <Duplicates dups={dups} copyTrack={copyTrack}/>
     </div>
   );
 }

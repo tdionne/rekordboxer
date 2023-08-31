@@ -16,12 +16,16 @@ function DupRow(props) {
     }, [props.dup])
 
     const copyRight = useCallback(async (e) => {
-        props.copyRight(bpt, dlt);
+        props.copyTrack(bpt, dlt);
+    }, [props, bpt, dlt])
+
+    const copyLeft = useCallback(async () => {
+        props.copyTrack(dlt, bpt);
     }, [props, bpt, dlt])
 
     return <>
         <TrackCell track={bpt}/>
-        <TrackButtons><button onClick={copyRight}>copy</button></TrackButtons>
+        <TrackButtons><button onClick={copyLeft}>&lt;&lt;</button><button onClick={copyRight}>&gt;&gt;</button></TrackButtons>
         <TrackCell track={dlt}/>
     </>
 }
