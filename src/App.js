@@ -22,6 +22,7 @@ const Filter = styled.div`
 
 function App() {
   const [xmlDoc, setXmlDoc] = useState();
+  const [newXmlDoc, setNewXmlDoc] = useState();
   const [tracks, setTracks] = useState([]);
   const [beatportTracks, setBeatportTracks] = useState([]);
   const [dups, setDups] = useState([]);
@@ -29,6 +30,7 @@ function App() {
   const [shownTracks, setShownTracks] = useState([]);
   const [newFileName, setNewFileName] = useState();
   const [saveMessage, setSaveMessage] = useState();
+  const [saveType, setSaveType] = useState();
 
  const TrackClass = useMemo(() => {
   class Track {
@@ -53,8 +55,17 @@ function App() {
     }
 
     set color(color) {
-      this._edited = true;
+      this.edited = true;
       this.xmlTrack.setAttribute('Colour', color);
+    }
+
+    get grouping() {
+      return this.xmlTrack.getAttribute("Grouping");
+    }
+
+    set grouping(g) {
+      this.edited = true;
+      this.xmlTrack.setAttribute('Grouping', g);
     }
 
     get rating() {
@@ -70,7 +81,7 @@ function App() {
     }
 
     set comments(c) {
-      this._edited = true;
+      this.edited = true;
       this.xmlTrack.setAttribute('Comments', c);
     }
 
@@ -86,7 +97,7 @@ function App() {
     }
 
     set grid(g) {
-      this._edited = true;
+      this.edited = true;
       Array.from(this.xmlTrack.getElementsByTagName("TEMPO")).forEach(te => {
         te.parentNode.removeChild(te);
       });
@@ -112,7 +123,7 @@ function App() {
     }
 
     set queues(q) {
-      this._edited = true;
+      this.edited = true;
       Array.from(this.xmlTrack.getElementsByTagName("POSITION_MARK")).forEach(p => {
         p.parentNode.removeChild(p);
       });
@@ -144,11 +155,25 @@ function App() {
     newTrack.grid = from.grid;
     newTrack.color = from.color;
     newTrack.rating = from.rating;
+    newTrack.grouping = from.grouping;
+
+    // replace in uploaded xml
     const idx = tracks.indexOf(tracks.find(t => t.trackName === to.trackName));
     const _tracks = [...tracks];
     _tracks[idx] = newTrack;
     setTracks(_tracks);
-  }, [tracks, TrackClass])
+
+    // set or replace in new xml
+    const existingTrack = Array.from(newXmlDoc.getElementsByTagName("TRACK")).find(t => t.getAttribute("Name") === newTrack.trackName);
+    if (!existingTrack) {
+      const entries =  newXmlDoc.getElementsByTagName("COLLECTION")[0].getAttribute("Entries");
+      newXmlDoc.getElementsByTagName("COLLECTION")[0].setAttribute("Entries", Number(entries) + 1);
+      const newXmlTrack = newTrack.xmlTrack.cloneNode(true);
+      const collection = newXmlDoc.getElementsByTagName("COLLECTION")[0];
+      collection.appendChild(newXmlTrack);
+    }
+
+  }, [tracks, TrackClass, newXmlDoc])
 
   const loadFile = useCallback(file => {
     const reader = new FileReader();
@@ -159,14 +184,45 @@ function App() {
       const tracks = xmlDoc.getElementsByTagName("TRACK");
       setTracks(Array.from(tracks).filter(t => t.getAttribute('Kind') !== 'Unknown Format').map(t => new TrackClass(t)));
       setBeatportTracks(Array.from(tracks).filter(t => t.getAttribute('Kind') === 'Unknown Format').map(t => new TrackClass(t)));
+
+      // Create a new xmlDoc for adding changes to
+      const newXmlDoc = xmlDoc.cloneNode(true);
+      Array.from(newXmlDoc.getElementsByTagName("COLLECTION")).forEach(t => {
+        t.parentNode.removeChild(t);
+      });
+
+      Array.from(newXmlDoc.getElementsByTagName("PLAYLISTS")).forEach(t => {
+        t.parentNode.removeChild(t);
+      });
+      const newCollection = newXmlDoc.createElement("COLLECTION");
+      newCollection.setAttribute("Entries", "0");
+      newXmlDoc.getElementsByTagName("DJ_PLAYLISTS")[0].appendChild(newCollection);
+      setNewXmlDoc(newXmlDoc);
     };
     reader.readAsText(file);
   }, [TrackClass]);
 
   const saveFile = useCallback(async () => {
     const serializer = new XMLSerializer();
-    const xmlStr = serializer.serializeToString(xmlDoc);
-    const blob = new Blob([xmlStr], {type: "text/xml"});
+    var xsltDoc = new DOMParser().parseFromString([
+      // describes how we want to modify the XML - indent everything
+      '<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">',
+      '  <xsl:strip-space elements="*"/>',
+      '  <xsl:template match="para[content-style][not(text())]">', // change to just text() to strip space in text nodes
+      '    <xsl:value-of select="normalize-space(.)"/>',
+      '  </xsl:template>',
+      '  <xsl:template match="node()|@*">',
+      '    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>',
+      '  </xsl:template>',
+      '  <xsl:output indent="yes"/>',
+      '</xsl:stylesheet>',
+  ].join('\n'), 'application/xml');
+
+    var xsltProcessor = new XSLTProcessor();    
+    xsltProcessor.importStylesheet(xsltDoc);
+    var resultDoc = xsltProcessor.transformToDocument(saveType === 'full' ? xmlDoc : newXmlDoc);
+    const xmlStr = serializer.serializeToString(resultDoc);
+    const blob = new Blob([xmlStr], {type: "application/xml"});
     try {
       saveAs(blob, newFileName);
     } catch (err) {
@@ -174,7 +230,7 @@ function App() {
       return
     }
     setSaveMessage('File saved');
-  }, [xmlDoc, newFileName]);
+  }, [newXmlDoc, newFileName, saveType, xmlDoc]);
 
   useEffect(() => {
     if (beatportTracks && beatportTracks.length > 0) {
@@ -220,7 +276,11 @@ function App() {
           <Filter onClick={_e => setShownTracks(deltas)}>Deltas</Filter>
         </Filters>
         <input onChange={e => setNewFileName(e.target.value)} value={newFileName}></input>
-        <button onClick={saveFile}>Save Changes</button>
+        <button onClick={saveFile}>Save</button>
+        <input type="radio" id="full" name="save_type" value="FULL" onChange={_e => setSaveType('full')} checked={saveType === 'full'}/>
+        <label for="full">FULL</label>
+        <input type="radio" id="changes" name="save_type" value="CHANGES" onChange={_e => setSaveType('changes')} checked={!saveType || saveType === 'changes'}/>
+        <label for="full">CHANGES</label>
         <div>{saveMessage}</div>
       </Toolbar>
       <Duplicates dups={shownTracks} copyTrack={copyTrack}/>
