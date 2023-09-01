@@ -38,11 +38,11 @@ const TrackHeader = styled.div`
 `
 
 const ratings = {
-    255: 5,
-    204: 4,
-    153: 3,
-    102: 2,
-    51: 1,
+    0xFF: 5,
+    0xCC: 4,
+    0x99: 3,
+    0x66: 2,
+    0x33: 1,
     0: 0
   };
 
