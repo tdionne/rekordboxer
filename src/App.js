@@ -57,6 +57,14 @@ function App() {
       this.xmlTrack.setAttribute('Colour', color);
     }
 
+    get rating() {
+      return this.xmlTrack.getAttribute('Rating');
+    }
+
+    set rating(r) {
+      this.xmlTrack.setAttribute('Rating', r);
+    }
+
     get comments() {
       return this.xmlTrack.getAttribute('Comments');
     }
@@ -135,6 +143,7 @@ function App() {
     newTrack.queues = from.queues;
     newTrack.grid = from.grid;
     newTrack.color = from.color;
+    newTrack.rating = from.rating;
     const idx = tracks.indexOf(tracks.find(t => t.trackName === to.trackName));
     const _tracks = [...tracks];
     _tracks[idx] = newTrack;

@@ -9,6 +9,14 @@
   margin: 1em 0 1em 0;
 }
 
+.star-svg {
+  background-color: black;
+}
+
+.star-svg path {
+  fill: white;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
