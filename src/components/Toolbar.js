@@ -25,10 +25,6 @@ function Toolbar(props) {
         </Filters>
         <input onChange={e => props.setNewFileName(e.target.value)} value={props.newFileName}></input>
         <button onClick={props.saveFile}>Save</button>
-        <input type="radio" id="full" name="save_type" value="FULL" onChange={_e => props.setSaveType('full')} checked={props.saveType === 'full'}/>
-        <label for="full">FULL</label>
-        <input type="radio" id="changes" name="save_type" value="CHANGES" onChange={_e => props.setSaveType('changes')} checked={!props.saveType || props.saveType === 'changes'}/>
-        <label for="full">CHANGES</label>
         <Link to="/settings">Settings</Link>
         <div>{props.saveMessage}</div>
     </Tb>

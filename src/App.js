@@ -17,6 +17,14 @@ function App() {
   const [saveMessage, setSaveMessage] = useState();
   const [saveType, setSaveType] = useState();
 
+  const [copySettings, setCopySettings] = useState({
+    color: false,
+    comments: false,
+    rating: false,
+    queues: false,
+    grid: false
+  });
+
  const TrackClass = useMemo(() => {
   class Track {
     constructor(xmlTrack) {
@@ -135,19 +143,21 @@ function App() {
 
   const copyTrack = useCallback(async (from, to) => {
     const newTrack = new TrackClass(to.xmlTrack);
-    newTrack.comments = from.comments;
-    newTrack.queues = from.queues;
-    newTrack.grid = from.grid;
-    newTrack.color = from.color;
-    newTrack.rating = from.rating;
-    newTrack.grouping = from.grouping;
+    if (copySettings.comments) newTrack.comments = from.comments;
+    if (copySettings.queues) newTrack.queues = from.queues;
+    if (copySettings.grid) {
+      newTrack.grid = from.grid;
+      newTrack.grouping = from.grouping;
+    }
+    if (copySettings.color) newTrack.color = from.color;
+    if (copySettings.rating) newTrack.rating = from.rating;
 
     // replace in uploaded xml
     const idx = tracks.indexOf(tracks.find(t => t.trackName === to.trackName));
     const _tracks = [...tracks];
     _tracks[idx] = newTrack;
     setTracks(_tracks);
-  }, [tracks, TrackClass])
+  }, [tracks, TrackClass, copySettings])
 
   const loadFile = useCallback(file => {
     const reader = new FileReader();
@@ -263,7 +273,11 @@ function App() {
               saveFile={saveFile}
               saveMessage={saveMessage}/>}
             />
-            <Route path="settings" element={<Settings />} />
+            <Route path="settings" element={<Settings 
+              saveType={saveType} 
+              setSaveType={setSaveType}
+              copySettings={copySettings}
+              setCopySettings={setCopySettings}/>} />
             <Route path="*" element={<NoPage />} />
         </Routes>
       </BrowserRouter>
