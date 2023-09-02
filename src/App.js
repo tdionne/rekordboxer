@@ -1,28 +1,13 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import logo from './rb.png';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './App.css';
-import Duplicates from './components/Duplicates';
-import styled from 'styled-components';
+import Settings from './pages/Settings';
+import Home from './pages/Home';
+import NoPage from './pages/NoPage';
 import { saveAs } from 'file-saver';
-
-const Toolbar = styled.div`
-  display: flex;
-  justify-content: center;
-`
-
-const Filters = styled.div`
-  display: flex;
-  justify-content: space-around;
-`
-
-const Filter = styled.div`
-  padding: 0 0.25em;
-  cursor: pointer;
-`
 
 function App() {
   const [xmlDoc, setXmlDoc] = useState();
-  const [newXmlDoc, setNewXmlDoc] = useState();
   const [tracks, setTracks] = useState([]);
   const [beatportTracks, setBeatportTracks] = useState([]);
   const [dups, setDups] = useState([]);
@@ -162,18 +147,7 @@ function App() {
     const _tracks = [...tracks];
     _tracks[idx] = newTrack;
     setTracks(_tracks);
-
-    // set or replace in new xml
-    const existingTrack = Array.from(newXmlDoc.getElementsByTagName("TRACK")).find(t => t.getAttribute("Name") === newTrack.trackName);
-    if (!existingTrack) {
-      const entries =  newXmlDoc.getElementsByTagName("COLLECTION")[0].getAttribute("Entries");
-      newXmlDoc.getElementsByTagName("COLLECTION")[0].setAttribute("Entries", Number(entries) + 1);
-      const newXmlTrack = newTrack.xmlTrack.cloneNode(true);
-      const collection = newXmlDoc.getElementsByTagName("COLLECTION")[0];
-      collection.appendChild(newXmlTrack);
-    }
-
-  }, [tracks, TrackClass, newXmlDoc])
+  }, [tracks, TrackClass])
 
   const loadFile = useCallback(file => {
     const reader = new FileReader();
@@ -184,23 +158,32 @@ function App() {
       const tracks = xmlDoc.getElementsByTagName("TRACK");
       setTracks(Array.from(tracks).filter(t => t.getAttribute('Kind') !== 'Unknown Format').map(t => new TrackClass(t)));
       setBeatportTracks(Array.from(tracks).filter(t => t.getAttribute('Kind') === 'Unknown Format').map(t => new TrackClass(t)));
-
-      // Create a new xmlDoc for adding changes to
-      const newXmlDoc = xmlDoc.cloneNode(true);
-      Array.from(newXmlDoc.getElementsByTagName("COLLECTION")).forEach(t => {
-        t.parentNode.removeChild(t);
-      });
-
-      Array.from(newXmlDoc.getElementsByTagName("PLAYLISTS")).forEach(t => {
-        t.parentNode.removeChild(t);
-      });
-      const newCollection = newXmlDoc.createElement("COLLECTION");
-      newCollection.setAttribute("Entries", "0");
-      newXmlDoc.getElementsByTagName("DJ_PLAYLISTS")[0].appendChild(newCollection);
-      setNewXmlDoc(newXmlDoc);
     };
     reader.readAsText(file);
   }, [TrackClass]);
+
+  const newXmlDoc = useCallback(() => {
+    // Create a new xmlDoc for adding changes to
+    const newXmlDoc = xmlDoc.cloneNode(true);
+    Array.from(newXmlDoc.getElementsByTagName("COLLECTION")).forEach(t => {
+      t.parentNode.removeChild(t);
+    });
+
+    Array.from(newXmlDoc.getElementsByTagName("PLAYLISTS")).forEach(t => {
+      t.parentNode.removeChild(t);
+    });
+
+    const copiedTracks = tracks.filter(t => t.edited);
+    const newCollection = newXmlDoc.createElement("COLLECTION");
+    newCollection.setAttribute("Entries", copiedTracks.length);
+    newXmlDoc.getElementsByTagName("DJ_PLAYLISTS")[0].appendChild(newCollection);
+
+    copiedTracks.forEach(t => {
+      newCollection.appendChild(t.xmlTrack.cloneNode(true))
+    })
+
+    return newXmlDoc;
+  }, [xmlDoc, tracks])
 
   const saveFile = useCallback(async () => {
     const serializer = new XMLSerializer();
@@ -216,11 +199,12 @@ function App() {
       '  </xsl:template>',
       '  <xsl:output indent="yes"/>',
       '</xsl:stylesheet>',
-  ].join('\n'), 'application/xml');
+    ].join('\n'), 'application/xml');
 
     var xsltProcessor = new XSLTProcessor();    
     xsltProcessor.importStylesheet(xsltDoc);
-    var resultDoc = xsltProcessor.transformToDocument(saveType === 'full' ? xmlDoc : newXmlDoc);
+    const doc = saveType === 'full' ? xmlDoc : newXmlDoc()
+    var resultDoc = xsltProcessor.transformToDocument(doc);
     const xmlStr = serializer.serializeToString(resultDoc);
     const blob = new Blob([xmlStr], {type: "application/xml"});
     try {
@@ -230,7 +214,7 @@ function App() {
       return
     }
     setSaveMessage('File saved');
-  }, [newXmlDoc, newFileName, saveType, xmlDoc]);
+  }, [newFileName, saveType, xmlDoc, newXmlDoc]);
 
   useEffect(() => {
     if (beatportTracks && beatportTracks.length > 0) {
@@ -265,26 +249,24 @@ function App() {
   }, [saveMessage])
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" /> <h1>BOXER</h1>
-      </header>
-      <Toolbar>
-        <input type="file" id="file-selector" onChange={e => loadFile(e.target.files[0])}></input>
-        <Filters>
-          <Filter onClick={_e => setShownTracks(dups)}>Dups</Filter>
-          <Filter onClick={_e => setShownTracks(deltas)}>Deltas</Filter>
-        </Filters>
-        <input onChange={e => setNewFileName(e.target.value)} value={newFileName}></input>
-        <button onClick={saveFile}>Save</button>
-        <input type="radio" id="full" name="save_type" value="FULL" onChange={_e => setSaveType('full')} checked={saveType === 'full'}/>
-        <label for="full">FULL</label>
-        <input type="radio" id="changes" name="save_type" value="CHANGES" onChange={_e => setSaveType('changes')} checked={!saveType || saveType === 'changes'}/>
-        <label for="full">CHANGES</label>
-        <div>{saveMessage}</div>
-      </Toolbar>
-      <Duplicates dups={shownTracks} copyTrack={copyTrack}/>
-    </div>
+    <BrowserRouter>
+        <Routes>
+            <Route index element={<Home 
+              shownTracks={shownTracks} 
+              copyTrack={copyTrack}
+              loadFile={loadFile} 
+              setShownTracks={setShownTracks}
+              newFileName={newFileName}
+              setNewFileName={setNewFileName}
+              setSaveType={setSaveType}
+              saveType={saveType}
+              saveFile={saveFile}
+              saveMessage={saveMessage}/>}
+            />
+            <Route path="settings" element={<Settings />} />
+            <Route path="*" element={<NoPage />} />
+        </Routes>
+      </BrowserRouter>
   );
 }
 
