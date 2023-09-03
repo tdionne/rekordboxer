@@ -286,6 +286,13 @@ const copyTrack = useCallback(async (from, to) => {
     }
   }, [saveMessage])
 
+  useEffect(() => {
+    if (playlistSettings.add || playlistSettings.replace) {
+      // force all tracks
+      setSaveType('full');
+    }
+  }, [playlistSettings])
+
   return (
     <BrowserRouter>
         <Routes>

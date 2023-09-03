@@ -64,9 +64,9 @@ function Settings(props) {
                 <input type="radio" id="full" name="playlist_settings" value="nothing" onChange={e => props.setPlaylistSettings({...props.playlistSettings, add: false, replace: false})} checked={!(props.playlistSettings.add || props.playlistSettings.replace)} />
                 <label for="full">Do not add tracks to playlists</label><br/>
                 <input type="radio" id="full" name="playlist_settings" value="add" onChange={e => props.setPlaylistSettings({...props.playlistSettings, add: e.target.checked})} checked={props.playlistSettings.add} />
-                <label for="full">Add tracks to playlists</label><br/>
+                <label for="full">Add tracks to playlists (requires all track export)</label><br/>
                 <input type="radio" id="changes" name="playlist_settings" value="replace" onChange={e => props.setPlaylistSettings({...props.playlistSettings, replace: e.target.checked})} checked={props.playlistSettings.replace}/>
-                <label for="full">Replace tracks in playlists</label><br/>
+                <label for="full">Replace tracks in playlists (requires all track export)</label><br/>
             </PlaylistSettings>
         </SettingsGrid>
     </>
