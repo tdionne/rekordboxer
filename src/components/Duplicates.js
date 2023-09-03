@@ -7,11 +7,17 @@ const DupTable = styled.div`
         gap: 10px;
         grid-auto-rows: minmax(100px, auto);
         align-items: center;
-        justify-content: center;
+`
+
+const TH = styled.h2`
+    justify-self: center;
 `
 
 function Duplicates(props) {
     return <DupTable>
+        <TH>Streaming Tracks</TH>
+        <div></div>
+        <TH>Downloaded Tracks</TH>
         {props.dups.map(d => <DupRow copyTrack={props.copyTrack} dup={d}></DupRow>)}
     </DupTable>
 }
