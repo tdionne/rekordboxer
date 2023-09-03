@@ -48,6 +48,10 @@ function App() {
       return this.xmlTrack.getAttribute('TotalTime');
     }
 
+    get trackId() {
+      return this.xmlTrack.getAttribute('TrackID');
+    }
+
     get color() {
       return this.xmlTrack.getAttribute('Colour');
     }
@@ -146,7 +150,26 @@ function App() {
   return Track;
  }, [xmlDoc]);
 
-  const copyTrack = useCallback(async (from, to) => {
+const updatePlaylists = useCallback((fromTrackId, toTrackId) => {
+  const playlistNodes = xmlDoc.getElementsByTagName("PLAYLISTS")[0].getElementsByTagName("NODE");
+  Array.from(playlistNodes).forEach(n => {
+    if (n.getAttribute("Type") === "1") {
+      const tracks = Array.from(n.getElementsByTagName("TRACK"));
+      const from = tracks.find(t => t.trackId === fromTrackId);
+      const to = tracks.find(t => t.trackId === toTrackId);
+      if (from && !to) {
+        const el = xmlDoc.createElement("TRACK");
+        el.setAttribute("Key", toTrackId);
+        tracks.parent.appendChild(el);
+      }
+      if (playlistSettings.replace) {
+        tracks.parent.removeChild(from);
+      }
+    }
+  })
+}, [xmlDoc, playlistSettings.replace])
+
+const copyTrack = useCallback(async (from, to) => {
     const newTrack = new TrackClass(to.xmlTrack);
     if (copySettings.comments) newTrack.comments = from.comments;
     if (copySettings.queues) newTrack.queues = from.queues;
@@ -162,7 +185,9 @@ function App() {
     const _tracks = [...tracks];
     _tracks[idx] = newTrack;
     setTracks(_tracks);
-  }, [tracks, TrackClass, copySettings])
+
+    (playlistSettings.add || playlistSettings.replace) && updatePlaylists(from.trackId, to.trackId)
+  }, [tracks, TrackClass, copySettings, playlistSettings.add, playlistSettings.replace, updatePlaylists])
 
   const loadFile = useCallback(file => {
     const reader = new FileReader();
@@ -181,10 +206,6 @@ function App() {
     // Create a new xmlDoc for adding changes to
     const newXmlDoc = xmlDoc.cloneNode(true);
     Array.from(newXmlDoc.getElementsByTagName("COLLECTION")).forEach(t => {
-      t.parentNode.removeChild(t);
-    });
-
-    Array.from(newXmlDoc.getElementsByTagName("PLAYLISTS")).forEach(t => {
       t.parentNode.removeChild(t);
     });
 
