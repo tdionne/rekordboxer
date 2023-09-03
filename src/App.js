@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './App.css';
 import Settings from './pages/Settings';
 import Home from './pages/Home';
+import About from './pages/About';
 import NoPage from './pages/NoPage';
 import { saveAs } from 'file-saver';
 
@@ -315,6 +316,7 @@ const copyTrack = useCallback(async (from, to) => {
               playlistSettings={playlistSettings}
               setPlaylistSettings={setPlaylistSettings}/>} />
             <Route path="*" element={<NoPage />} />
+            <Route path="about" element={<About/>} />
         </Routes>
       </BrowserRouter>
   );

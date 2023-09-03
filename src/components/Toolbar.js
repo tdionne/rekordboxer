@@ -7,6 +7,11 @@ const Filters = styled.div`
     gap: 0.5em;
 `
 
+const Links = styled.div`
+  display: flex;
+  gap: 0.5em;
+`
+
 const Filter = styled.div`
     padding: 0 0.25em;
     color: black;
@@ -35,7 +40,10 @@ function Toolbar(props) {
           <Filter onClick={_e => props.setTrackFilter('dups')}>All</Filter>
           <Filter onClick={_e => props.setTrackFilter('deltas')}>Deltas</Filter>
         </Filters>
-        <Link to="/settings">Settings</Link>
+        <Links>
+          <Link to="/about">About</Link>
+          <Link to="/settings">Settings</Link>
+        </Links>
         <div>{props.saveMessage}</div>
     </Tb>
 }
