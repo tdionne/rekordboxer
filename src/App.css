@@ -17,6 +17,14 @@
   fill: white;
 }
 
+a {
+  color: black;
+  background-color: lightgray;
+  text-decoration: none;
+  border-radius: 5px;
+  padding: 0.5em;
+  font-size: small;
+}
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;

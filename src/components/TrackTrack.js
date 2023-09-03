@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import {ReactComponent as Star} from '../star.svg';
 
 const TrackRegion = styled.div`
-        position: relative;
-        width: 100%;
-        height: 3em;
-        background-color: black;
+    position: relative;
+    width: 100%;
+    height: 3em;
+    background-color: black;
 `
 
 const Q = styled.div`

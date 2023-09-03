@@ -6,9 +6,9 @@ function Home(props) {
     return <>
         <Header/>
         <Toolbar loadFile={props.loadFile} 
-            setShownTracks={props.setShowsTracks} 
-            newFileName={props.newFileName}
-            setNewFileName={props.setNewFileName}
+            saveFile={props.saveFile}
+            setShownTracks={props.setShownTracks} 
+            setTrackFilter={props.setTrackFilter}
             setSaveType={props.setSaveType}
             saveType={props.saveType}
             saveMessage={props.saveMessage}/>

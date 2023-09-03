@@ -12,17 +12,22 @@ function App() {
   const [beatportTracks, setBeatportTracks] = useState([]);
   const [dups, setDups] = useState([]);
   const [deltas, setDeltas] = useState([]);
+  const [trackFilter, setTrackFilter] = useState();
   const [shownTracks, setShownTracks] = useState([]);
-  const [newFileName, setNewFileName] = useState();
   const [saveMessage, setSaveMessage] = useState();
   const [saveType, setSaveType] = useState();
 
   const [copySettings, setCopySettings] = useState({
-    color: false,
-    comments: false,
-    rating: false,
+    color: true,
+    comments: true,
+    rating: true,
     queues: false,
     grid: false
+  });
+
+  const [playlistSettings, setPlaylistSettings] = useState({
+    add: false,
+    replace: false
   });
 
  const TrackClass = useMemo(() => {
@@ -218,13 +223,13 @@ function App() {
     const xmlStr = serializer.serializeToString(resultDoc);
     const blob = new Blob([xmlStr], {type: "application/xml"});
     try {
-      saveAs(blob, newFileName);
+      saveAs(blob, `boxer_export.xml`);
     } catch (err) {
       setSaveMessage(err);
       return
     }
     setSaveMessage('File saved');
-  }, [newFileName, saveType, xmlDoc, newXmlDoc]);
+  }, [saveType, xmlDoc, newXmlDoc]);
 
   useEffect(() => {
     if (beatportTracks && beatportTracks.length > 0) {
@@ -246,11 +251,13 @@ function App() {
 
   useEffect(() => {
     if (deltas && dups) {
-      if (!shownTracks || shownTracks.length === 0) {
+      if (trackFilter) {
+        setShownTracks(trackFilter === 'dups' ? dups : deltas);
+      } else {
         setShownTracks(dups);
       }
     }
-  }, [deltas, dups, shownTracks])
+  }, [deltas, dups, shownTracks, trackFilter])
 
   useEffect(() => {
     if (saveMessage) {
@@ -266,8 +273,7 @@ function App() {
               copyTrack={copyTrack}
               loadFile={loadFile} 
               setShownTracks={setShownTracks}
-              newFileName={newFileName}
-              setNewFileName={setNewFileName}
+              setTrackFilter={setTrackFilter}
               setSaveType={setSaveType}
               saveType={saveType}
               saveFile={saveFile}
@@ -277,7 +283,9 @@ function App() {
               saveType={saveType} 
               setSaveType={setSaveType}
               copySettings={copySettings}
-              setCopySettings={setCopySettings}/>} />
+              setCopySettings={setCopySettings}
+              playlistSettings={playlistSettings}
+              setPlaylistSettings={setPlaylistSettings}/>} />
             <Route path="*" element={<NoPage />} />
         </Routes>
       </BrowserRouter>
