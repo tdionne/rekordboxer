@@ -39,12 +39,12 @@ function About(props) {
                 <li>In rekordbox, export your library as XML (File -&gt; Export Collection in xml format)</li>
                 <li>Using boxer, select the XML file you just created.</li>
                 <li>In Settings, make sure you select the metadata you are interested in copying, and how you want to treat playlists.</li>
-                <li>Back on the main page, using the filters, you can view all matched tracks, or just the ones that have diffferent metadata</li>
+                <li>Back on the main page, using the filters, you can view all matched tracks, or just the ones that have different metadata</li>
                 <li>When you find a track that you want to copy, simply click the &gt;&gt; button</li>
                 <li>When you are done copying data, click the Save button</li>
                 <li>This will create a new XML file with the changes you made</li>
                 <li>In rekordbox, open Preferences, select the Advanced Tab and the Database subtab</li>
-                <li>Find the recordbox xml configuration</li>
+                <li>Find the rekordbox xml configuration</li>
                 <li>Browse for the XML file you just exported from boxer</li>
                 <li>Close Preferences, and then in your track browser, find the rekordbox xml node</li>
                 <li>In this view, you can choose tracks to import to your library, and they will overwrite existing settings</li>
