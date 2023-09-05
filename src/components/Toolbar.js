@@ -45,7 +45,6 @@ function Toolbar(props) {
           <Link to="/about">About</Link>
           <Link to="/settings">Settings</Link>
         </Links>
-        <div>{props.saveMessage}</div>
     </Tb>
 }
 
