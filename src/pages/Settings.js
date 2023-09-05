@@ -50,8 +50,8 @@ function Settings(props) {
                 <label for="color">Comments</label><br/>
                 <input type="checkbox" name="grid" onChange={e => props.setCopySettings({...props.copySettings, grid: e.target.checked})} checked={props.copySettings.grid}/>
                 <label for="color">Beat Grid (experimintal)</label><br/>
-                <input type="checkbox" name="queues" onChange={e => props.setCopySettings({...props.copySettings, queues: e.target.checked})} checked={props.copySettings.queues}/>
-                <label for="color">Queues (experimental)</label><br/>
+                <input type="checkbox" name="cues" onChange={e => props.setCopySettings({...props.copySettings, cues: e.target.checked})} checked={props.copySettings.cues}/>
+                <label for="color">Cues (experimental)</label><br/>
             </CopyInfo>
             <ExportFile>
                 <h2>Export File</h2>

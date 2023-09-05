@@ -23,7 +23,7 @@ function App() {
     color: true,
     comments: true,
     rating: true,
-    queues: false,
+    cues: false,
     grid: false
   });
 
@@ -57,7 +57,7 @@ function App() {
           beat: te.getAttribute('Battito')
         }
       });
-      this._queues = Array.from(xmlTrack.getElementsByTagName("POSITION_MARK")).map(p => {
+      this._cues = Array.from(xmlTrack.getElementsByTagName("POSITION_MARK")).map(p => {
         return {
           name: p.getAttribute('Name'),
           type: p.getAttribute('Type'),
@@ -143,13 +143,13 @@ function App() {
       this._grid = g;
     }
 
-    get queues() {
-      return this._queues;
+    get cues() {
+      return this._cues;
     }
 
-    set queues(q) {
+    set cues(q) {
       this.edited = true;
-      this._queues = q;
+      this._cues = q;
     }
 
     get edited() {
@@ -186,11 +186,11 @@ function App() {
       })
     }
 
-    writeQueues(xmlDoc) {
+    writecues(xmlDoc) {
       Array.from(this.xmlTrack.getElementsByTagName("POSITION_MARK")).forEach(p => {
         p.parentNode.removeChild(p);
       });
-      this.queues.forEach(_ => {  
+      this.cues.forEach(_ => {  
         const newEl = xmlDoc.createElement("POSITION_MARK");
         newEl.setAttribute('Name', _.name);
         newEl.setAttribute('Type', _.type);
@@ -204,7 +204,7 @@ function App() {
       this.writeComments();
       this.writeRating();
       this.writeGrid(xmlDoc);
-      this.writeQueues(xmlDoc);
+      this.writecues(xmlDoc);
     }
   }
   return Track;
@@ -232,7 +232,7 @@ const updatePlaylists = useCallback((fromTrackId, toTrackId) => {
 const copyTrack = useCallback(async (from, to) => {
     const newTrack = new TrackClass(to.xmlTrack);
     if (copySettings.comments) newTrack.comments = from.comments;
-    if (copySettings.queues) newTrack.queues = from.queues;
+    if (copySettings.cues) newTrack.cues = from.cues;
     if (copySettings.grid) {
       newTrack.grid = from.grid;
       newTrack.grouping = from.grouping;
@@ -320,11 +320,11 @@ const copyTrack = useCallback(async (from, to) => {
   const filterView = useCallback(d => {
     if (diffSettings.onlyNew) {
       return d[1].edited || d[0].edited || (
-          (d[1].queues.length === 0 && d[1].rating === '0' && d[1].grouping === ''  && d[1].comments === '') &&
-          !(d[0].queues.length === 0 && d[0].rating === '0' && d[1].grouping === '' && d[0].comments === '')
+          (d[1].cues.length === 0 && d[1].rating === '0' && d[1].grouping === ''  && d[1].comments === '') &&
+          !(d[0].cues.length === 0 && d[0].rating === '0' && d[1].grouping === '' && d[0].comments === '')
       );
     } else {
-      return d[1].edited || d[0].edited || d[0].queues.length !== d[1].queues.length || d[0].comments !== d[1].comments || d[0].rating !== d[1].rating || d[0].grouping !== d[1].grouping;
+      return d[1].edited || d[0].edited || d[0].cues.length !== d[1].cues.length || d[0].comments !== d[1].comments || d[0].rating !== d[1].rating || d[0].grouping !== d[1].grouping;
     }
   }, [diffSettings.onlyNew]);
 

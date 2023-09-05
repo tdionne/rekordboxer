@@ -69,7 +69,7 @@ function TrackTrack(props) {
             <Stars rating={ratings[props.track.rating]}/>
         </TrackHeader>
         <TrackRegion>
-            {props.track.queues.map(q => <Q start={q.start/props.track.length * 100} num={props.num}/>)}
+            {props.track.cues.map(q => <Q start={q.start/props.track.length * 100} num={props.num}/>)}
         </TrackRegion>
         <Comments>{props.track.comments}</Comments>
     </>

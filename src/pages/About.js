@@ -21,7 +21,7 @@ function About(props) {
         <p>
             Boxer is an app that will search for streaming tracks in your rekordbox library, and match them with downloaded tracks.
             Very often DJs will create playlists with streaming tracks, but then have a need to download them for export to USB.
-            In these cases, the streaming tracks have been decorated with metadata like rating, tags/comments, color, and queue points.
+            In these cases, the streaming tracks have been decorated with metadata like rating, tags/comments, color, and cue points.
             Instead of being forced to duplicate this effort for the downloaded tracks, this application will allow a DJ to copy the metadata
             from the streaming track to the downloaded track.
         </p>
@@ -45,7 +45,7 @@ function About(props) {
         </p>
         <h2>Known Issues</h2>
             <ol>
-                <li>It has become clear that streaming tracks and downloaded tracks are not identical, so beat grid and queue points can be off slightly.</li>
+                <li>It has become clear that streaming tracks and downloaded tracks are not identical, so beat grid and cue points can be off slightly.</li>
             </ol>
         </AboutContent>
     </>
