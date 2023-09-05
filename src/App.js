@@ -36,60 +36,15 @@ function App() {
     constructor(xmlTrack) {
       this.xmlTrack = xmlTrack;
       this._edited = false;
-    }
-    get trackName() {
-      return this.xmlTrack.getAttribute('Name');
-    }
-
-    get kind() {
-      return this.xmlTrack.getAttribute('Kind');
-    }
-
-    get length() {
-      return this.xmlTrack.getAttribute('TotalTime');
-    }
-
-    get trackId() {
-      return this.xmlTrack.getAttribute('TrackID');
-    }
-
-    get color() {
-      return this.xmlTrack.getAttribute('Colour');
-    }
-
-    set color(color) {
-      this.edited = true;
-      this.xmlTrack.setAttribute('Colour', color);
-    }
-
-    get grouping() {
-      return this.xmlTrack.getAttribute("Grouping");
-    }
-
-    set grouping(g) {
-      this.edited = true;
-      this.xmlTrack.setAttribute('Grouping', g);
-    }
-
-    get rating() {
-      return this.xmlTrack.getAttribute('Rating');
-    }
-
-    set rating(r) {
-      this.xmlTrack.setAttribute('Rating', r);
-    }
-
-    get comments() {
-      return this.xmlTrack.getAttribute('Comments');
-    }
-
-    set comments(c) {
-      this.edited = true;
-      this.xmlTrack.setAttribute('Comments', c);
-    }
-
-    get grid() {
-      return Array.from(this.xmlTrack.getElementsByTagName("TEMPO")).map(te => {
+      this._trackName = xmlTrack.getAttribute('Name');
+      this._kind = xmlTrack.getAttribute('Kind');
+      this._length = xmlTrack.getAttribute('TotalTime');
+      this._trackId = xmlTrack.getAttribute('TrackID');
+      this._color = xmlTrack.getAttribute('Colour');
+      this._grouping = xmlTrack.getAttribute('Grouping');
+      this._rating = xmlTrack.getAttribute('Rating');
+      this._comments = xmlTrack.getAttribute('Comments');
+      this._grid = Array.from(xmlTrack.getElementsByTagName("TEMPO")).map(te => {
         return {
           start: te.getAttribute('Inizio'),
           bpm: te.getAttribute('Bpm'),
@@ -97,47 +52,99 @@ function App() {
           beat: te.getAttribute('Battito')
         }
       });
-    }
-
-    set grid(g) {
-      this.edited = true;
-      Array.from(this.xmlTrack.getElementsByTagName("TEMPO")).forEach(te => {
-        te.parentNode.removeChild(te);
-      });
-      g.forEach(_ => {
-        const newEl = xmlDoc.createElement("TEMPO");
-        newEl.setAttribute('Inizio', _.start);
-        newEl.setAttribute('Bpm', _.bpm);
-        newEl.setAttribute('Metro', _.metro);
-        newEl.setAttribute('Battito', _.beat);
-        this.xmlTrack.appendChild(newEl);
-      })
-    }
-
-    get queues() {
-      return Array.from(this.xmlTrack.getElementsByTagName("POSITION_MARK")).map(p => {
+      this._queues = Array.from(xmlTrack.getElementsByTagName("POSITION_MARK")).map(p => {
         return {
           name: p.getAttribute('Name'),
           type: p.getAttribute('Type'),
           start: p.getAttribute('Start'),
           num: p.getAttribute('Num')
-        };
+        }
       });
+    }
+
+    get trackName() {
+      return this._trackName;
+    }
+
+    set trackName(t) {
+      this._trackName = t;
+    }
+
+    get kind() {
+      return this._kind;
+    }
+
+    set kind(k) {
+      this._kind = k;
+    }
+
+    get length() {
+      return this._length;
+    }
+
+    set length(l) {
+      this._length = l;
+    }
+
+    get trackId() {
+      return this._trackId;
+    }
+
+    set trackId(t) {
+      this._trackId = t;
+    }
+
+    get color() {
+      return this._color;
+    }
+
+    set color(color) {
+      this.edited = true;
+      this._color = color;
+    }
+
+    get grouping() {
+      return this._grouping;
+    }
+
+    set grouping(g) {
+      this.edited = true;
+      this._grouping = g;
+    }
+
+    get rating() {
+      return this._rating;
+    }
+
+    set rating(r) {
+      this._rating = r;
+    }
+
+    get comments() {
+      return this._comments;
+    }
+
+    set comments(c) {
+      this.edited = true;
+      this._comments = c;
+    }
+
+    get grid() {
+      return this._grid;
+    }
+
+    set grid(g) {
+      this.edited = true;
+      this._grid = g;
+    }
+
+    get queues() {
+      return this._queues;
     }
 
     set queues(q) {
       this.edited = true;
-      Array.from(this.xmlTrack.getElementsByTagName("POSITION_MARK")).forEach(p => {
-        p.parentNode.removeChild(p);
-      });
-      q.forEach(_ => {  
-        const newEl = xmlDoc.createElement("POSITION_MARK");
-        newEl.setAttribute('Name', _.name);
-        newEl.setAttribute('Type', _.type);
-        newEl.setAttribute('Start', _.start);
-        newEl.setAttribute('Num', _.num);
-        this.xmlTrack.appendChild(newEl);
-      })
+      this._queues = q;
     }
 
     get edited() {
@@ -147,9 +154,56 @@ function App() {
     set edited(edited) {
       this._edited = edited;
     }
+
+    writeColor() {
+      this.xmlTrack.setAttribute('Colour', this.color);
+    }
+
+    writeComments() {
+      this.xmlTrack.setAttribute('Comments', this.comments);
+    }
+
+    writeRating() {
+      this.xmlTrack.setAttribute('Rating', this.rating);
+    }
+
+    writeGrid(xmlDoc) {
+      Array.from(this.xmlTrack.getElementsByTagName("TEMPO")).forEach(te => {
+        te.parentNode.removeChild(te);
+      });
+      this.grid.forEach(_ => {
+        const newEl = xmlDoc.createElement("TEMPO");
+        newEl.setAttribute('Inizio', _.start);
+        newEl.setAttribute('Bpm', _.bpm);
+        newEl.setAttribute('Metro', _.metro);
+        newEl.setAttribute('Battito', _.beat);
+        this.xmlTrack.appendChild(newEl);
+      })
+    }
+
+    writeQueues(xmlDoc) {
+      Array.from(this.xmlTrack.getElementsByTagName("POSITION_MARK")).forEach(p => {
+        p.parentNode.removeChild(p);
+      });
+      this.queues.forEach(_ => {  
+        const newEl = xmlDoc.createElement("POSITION_MARK");
+        newEl.setAttribute('Name', _.name);
+        newEl.setAttribute('Type', _.type);
+        newEl.setAttribute('Start', _.start);
+        newEl.setAttribute('Num', _.num);
+        this.xmlTrack.appendChild(newEl);
+      })
+    }
+    serialize(xmlDoc) {
+      this.writeColor();
+      this.writeComments();
+      this.writeRating();
+      this.writeGrid(xmlDoc);
+      this.writeQueues(xmlDoc);
+    }
   }
   return Track;
- }, [xmlDoc]);
+ }, []);
 
 const updatePlaylists = useCallback((fromTrackId, toTrackId) => {
   const playlistNodes = xmlDoc.getElementsByTagName("PLAYLISTS")[0].getElementsByTagName("NODE");
@@ -181,7 +235,7 @@ const copyTrack = useCallback(async (from, to) => {
     if (copySettings.color) newTrack.color = from.color;
     if (copySettings.rating) newTrack.rating = from.rating;
 
-    // replace in uploaded xml
+    // replace in tracks array
     const idx = tracks.indexOf(tracks.find(t => t.trackName === to.trackName));
     const _tracks = [...tracks];
     _tracks[idx] = newTrack;
@@ -223,6 +277,11 @@ const copyTrack = useCallback(async (from, to) => {
   }, [xmlDoc, tracks])
 
   const saveFile = useCallback(async () => {
+    // Write the changes to the xmlDoc
+    tracks.forEach(t => {
+      t.serialize(xmlDoc);
+    });
+
     const serializer = new XMLSerializer();
     var xsltDoc = new DOMParser().parseFromString([
       // describes how we want to modify the XML - indent everything
@@ -251,7 +310,7 @@ const copyTrack = useCallback(async (from, to) => {
       return
     }
     setSaveMessage('File saved');
-  }, [saveType, xmlDoc, newXmlDoc]);
+  }, [saveType, xmlDoc, newXmlDoc, tracks]);
 
   useEffect(() => {
     if (beatportTracks && beatportTracks.length > 0) {
