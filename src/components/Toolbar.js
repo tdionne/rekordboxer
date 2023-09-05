@@ -38,7 +38,7 @@ function Toolbar(props) {
         </Filters>
         <Filters>
           <Filter onClick={_e => props.setTrackFilter('dups')}>All</Filter>
-          <Filter onClick={_e => props.setTrackFilter('deltas')}>Deltas</Filter>
+          <Filter onClick={_e => props.setTrackFilter('deltas')}>Diffs</Filter>
         </Filters>
         <Links>
           <Link to="/about">About</Link>

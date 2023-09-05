@@ -32,6 +32,10 @@ function App() {
     replace: false
   });
 
+  const [diffSettings, setDiffSettings] = useState({
+    onlyNew: true
+  });
+
  const TrackClass = useMemo(() => {
   class Track {
     constructor(xmlTrack) {
@@ -313,8 +317,19 @@ const copyTrack = useCallback(async (from, to) => {
     setSaveMessage('File saved');
   }, [saveType, xmlDoc, newXmlDoc, tracks]);
 
+  const filterView = useCallback(d => {
+    if (diffSettings.onlyNew) {
+      return d[1].edited || d[0].edited || (
+          (d[1].queues.length === 0 && d[1].rating === '0' && d[1].grouping === ''  && d[1].comments === '') &&
+          !(d[0].queues.length === 0 && d[0].rating === '0' && d[1].grouping === '' && d[0].comments === '')
+      );
+    } else {
+      return d[1].edited || d[0].edited || d[0].queues.length !== d[1].queues.length || d[0].comments !== d[1].comments || d[0].rating !== d[1].rating || d[0].grouping !== d[1].grouping;
+    }
+  }, [diffSettings.onlyNew]);
+
   useEffect(() => {
-    if (beatportTracks && beatportTracks.length > 0) {
+    if (tracks && tracks.length > 0 && beatportTracks && beatportTracks.length > 0) {
       const dups = beatportTracks.map(bpt => {
           const d = tracks.filter(t => {
             return t.trackName
@@ -324,12 +339,10 @@ const copyTrack = useCallback(async (from, to) => {
           return d.length > 0 ? [bpt, d[0]] : undefined;
       }).filter(d => typeof d !== 'undefined');
       setDups(dups)
-      const deltas = dups.filter(d => {
-        return d[1].edited || d[0].edited || d[0].queues.length > d[1].queues.length || d[0].comments !== d[1].comments;
-      });
+      const deltas = dups.filter(filterView);
       setDeltas(deltas);
     }
-  }, [beatportTracks, tracks])
+  }, [beatportTracks, tracks, filterView])
 
   useEffect(() => {
     if (deltas && dups) {
@@ -374,6 +387,8 @@ const copyTrack = useCallback(async (from, to) => {
               setSaveType={setSaveType}
               copySettings={copySettings}
               setCopySettings={setCopySettings}
+              diffSettings={diffSettings}
+              setDiffSettings={setDiffSettings}
               playlistSettings={playlistSettings}
               setPlaylistSettings={setPlaylistSettings}/>} />
             <Route path="*" element={<NoPage />} />

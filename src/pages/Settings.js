@@ -16,6 +16,10 @@ const CopyInfo = styled.div`
     display: block;
 `
 
+const DiffSettings = styled.div`
+    display: block;
+`
+
 const ExportFile = styled.div`
     display: block;
 `
@@ -31,6 +35,11 @@ function Settings(props) {
             <h1>Settings</h1>
         </SettingsHeader>
         <SettingsGrid>
+            <DiffSettings>
+                <h2>Diff Settings</h2>
+                <input type="checkbox" name="diff" onChange={e => props.setDiffSettings({...props.diffSettings, onlyNew: e.target.checked})} checked={props.diffSettings.onlyNew}/>
+                <label for="color">Only New</label><br/>
+            </DiffSettings>
             <CopyInfo>
                 <h2>Copy Info</h2>
                 <input type="checkbox" name="color" onChange={e => props.setCopySettings({...props.copySettings, color: e.target.checked})} checked={props.copySettings.color}/>
