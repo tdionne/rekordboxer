@@ -5,6 +5,7 @@ import Settings from './pages/Settings';
 import Home from './pages/Home';
 import About from './pages/About';
 import NoPage from './pages/NoPage';
+import Header from './components/Header';
 import { saveAs } from 'file-saver';
 
 function App() {
@@ -355,6 +356,7 @@ const copyTrack = useCallback(async (from, to) => {
 
   return (
     <BrowserRouter>
+        <Header/>
         <Routes>
             <Route index element={<Home 
               shownTracks={shownTracks} 

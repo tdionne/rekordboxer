@@ -14,13 +14,6 @@ const AboutContent = styled.div`
 
 function About(props) {
     return <>
-         <Header loadFile={props.loadFile} 
-            setShownTracks={props.setShowsTracks} 
-            newFileName={props.newFileName}
-            setNewFileName={props.setNewFileName}
-            setSaveType={props.setSaveType}
-            saveType={props.saveType}
-            saveMessage={props.saveMessage}/>
         <AboutHeader>
             <Link to="/">&lt;&lt;Back</Link>
             <h1>About</h1>
