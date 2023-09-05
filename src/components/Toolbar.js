@@ -28,6 +28,7 @@ const Tb = styled.div`
   justify-content: space-around;
   gap: 1em;
   margin-bottom: 1em;
+  flex-wrap: wrap;
 `
 
 function Toolbar(props) {
